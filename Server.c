@@ -85,14 +85,14 @@ void* clientThread(void* arg) {
 void handleConnection(int client_queue_id) {
     int client_index = -1;
     pthread_mutex_lock(&clients_mutex);
-    /*for (int i = 0; i < MAX_CLIENTS; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].client_queue_id == 0) {
             client_index = i;
             clients[i].client_queue_id = client_queue_id;
             printf("Client %d connected.\n", client_queue_id);
             break;
         }
-    }*/
+    }
     pthread_mutex_unlock(&clients_mutex);
 
     if (client_index == -1) {
