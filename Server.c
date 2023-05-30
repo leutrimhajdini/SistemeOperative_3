@@ -51,21 +51,6 @@ void* clientThread(void* arg) {
         printf("Received message from client %d: %s\n", client_queue_id, msg.msg_text);
 
 
-        char response[MSG_SIZE + 300];
-        snprintf(response, sizeof(response), "Server response to client %d: %s", client_queue_id, msg.msg_text);
-
-
-        Message response_msg;
-        response_msg.msg_type = 2; 
-        strncpy(response_msg.msg_text, response, MSG_SIZE);
-	if (msgsnd(client_queue_id, &response_msg, sizeof(Message) - sizeof(long), 0) == -1) {
-	    perror("msgsnd");
-	    exit(1);
-	} else {
-	    printf("Response from the server: %s\n", response_msg.msg_text);
-	    fflush(stdout);
-	}
-
     }
 
     pthread_mutex_lock(&clients_mutex);
@@ -99,6 +84,8 @@ void handleConnection(int client_queue_id) {
         printf("Maximum client limit reached. Connection rejected.\n");
         return;
     }
+    
+
 
     pthread_create(&clients[client_index].thread_id, NULL, clientThread, &clients[client_index].client_queue_id);
 }
@@ -126,16 +113,13 @@ int main() {
     printf("Server %d started. Listening for connections...\n", server_queue_id);
 	while (1) {
 	    if (msgrcv(server_queue_id, &msg, sizeof(Message) - sizeof(long), 1, 0) == -1) {
-		perror("The message from the client is exit, server is now closing\n");
+		perror("msgrcv");
 		exit(1);
 	    }
 
-
-
-	  handleConnection(atoi(msg.msg_text));
-	  printf("Received a message from the client\n");
+	    handleConnection(atoi(msg.msg_text));
+		
 	}
 
     return 0;
 }
-
